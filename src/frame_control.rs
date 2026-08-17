@@ -2,11 +2,11 @@ use std::time::{Duration, Instant};
 use std::thread::sleep;
 
 pub struct FpsTracker {
-    target_fps: f32,
     frame_duration: Duration,
     fps_counter: u32,
     fps_timer: Instant,
     next_frame_time: Instant,
+    render_time_accum: Duration,
 }
 
 impl FpsTracker {
@@ -14,15 +14,25 @@ impl FpsTracker {
         let frame_duration = Duration::from_secs_f32(1.0 / target_fps);
         let now = Instant::now();
         Self {
-            target_fps,
             frame_duration,
             fps_counter: 0,
             fps_timer: now,
             next_frame_time: now + frame_duration,
+            render_time_accum: Duration::ZERO,
         }
     }
 
-    // Call in loop 
+    /// Call this right before your render work starts.
+    pub fn begin_render(&self) -> Instant {
+        Instant::now()
+    }
+
+    /// Call this right after your render work finishes, passing the Instant from begin_render.
+    pub fn end_render(&mut self, start: Instant) {
+        self.render_time_accum += start.elapsed();
+    }
+
+    // Call in loop, AFTER end_render()
     pub fn tick(&mut self) {
         let now = Instant::now();
 
@@ -30,15 +40,18 @@ impl FpsTracker {
         if now < self.next_frame_time {
             sleep(self.next_frame_time - now);
         }
-        // Advance next frame target (prevents drift over time)
         self.next_frame_time += self.frame_duration;
 
-        // Profiler/FPS Counter
         self.fps_counter += 1;
         if self.fps_timer.elapsed() >= Duration::from_secs(1) {
             println!("Actual FPS: {}", self.fps_counter);
+            println!(
+                "Avg Render Time: {:.2} ms",
+                self.render_time_accum.as_secs_f32() * 1000.0 / self.fps_counter as f32
+            );
             self.fps_counter = 0;
             self.fps_timer = Instant::now();
+            self.render_time_accum = Duration::ZERO;
         }
     }
 }
