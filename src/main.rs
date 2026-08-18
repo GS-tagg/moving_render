@@ -181,7 +181,6 @@ fn generate_ray_directions(width: usize, height: usize) -> Vec<Vec3> {
             rays.push(Vec3::new(uv_x, uv_y, 1.0).normalize());
         }
     }
-
     rays
 }
 

@@ -22,17 +22,17 @@ impl FpsTracker {
         }
     }
 
-    /// Call this right before your render work starts.
+    // Call this before render work
     pub fn begin_render(&self) -> Instant {
         Instant::now()
     }
 
-    /// Call this right after your render work finishes, passing the Instant from begin_render.
+    /// Call this right after render work
     pub fn end_render(&mut self, start: Instant) {
         self.render_time_accum += start.elapsed();
     }
 
-    // Call in loop, AFTER end_render()
+    // Call in loop after end_render
     pub fn tick(&mut self) {
         let now = Instant::now();
 
