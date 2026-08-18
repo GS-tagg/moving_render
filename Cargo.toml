@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 winit = "0.29.15"
 softbuffer = "0.4"
+rayon = "1.11"
 
 [profile.release]
 opt-level = 3        # Maximum optimizations (LLVM passes)
